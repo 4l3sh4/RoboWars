@@ -1,0 +1,8 @@
+M by N : 5 5
+steps: 3
+robots: 5
+GenericRobot Kidd 3 3
+GenericRobot Jet 3 4
+GenericRobot Alpha 2 3
+GenericRobot Star 2 2
+GenericRobot Beta 2 4
