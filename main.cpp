@@ -228,7 +228,7 @@ class GenericRobot: public Robot
             if (!RobotAlive[index]) return; // skip if robot is destructed
 
             if (shells == 0) {
-                cout << "\nGenericRobot " << name << " is out of shells and now self-destructs!";
+                cout << "\nGenericRobot " << name << " is out of shells! Shutting down permanently.";
                 selfDestruct(index);
                 return; // Stop execution if robot has no shells //picheolin
             }
@@ -238,7 +238,7 @@ class GenericRobot: public Robot
                     RobotReset(); // respawns with 3 lives and moves off grid
                     return;
                 } else {
-                    cout << "\nGenericRobot " << name << " has no lives left and exceeded respawn limit. Self-destructing!";
+                    cout << "\nGenericRobot " << name << " has no lives left and is now lost in the battlefield.";
                     selfDestruct(index);
                     return;
                 }
@@ -467,7 +467,6 @@ class GenericRobot: public Robot
             robot_check = true;
         };
 
-
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
             shells--; //decrease shells by 1 //picheolin
@@ -483,6 +482,7 @@ class GenericRobot: public Robot
                 else if(RobotLives[which_robot] == 0){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
                     cout << ", " << RobotPositionY[which_robot] << " is now DESTROYED!";
+
                 }
                 else if(RobotLives[which_robot] > 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
