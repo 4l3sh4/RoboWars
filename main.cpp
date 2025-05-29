@@ -95,6 +95,7 @@ int robot_num;
 // Type, name, and initial position of each robot
 vector<string> RobotType, RobotNames;
 vector<int> RobotPositionX, RobotPositionY, RobotLives;
+vector<bool> RobotIsHiding; // Hide status
 
 // Initial position
 int position_x;
@@ -439,6 +440,11 @@ class GenericRobot: private Robot
             // Check which robot got hit
             which_robot = findInListIndex(RobotPositionX,RobotPositionY,x,y);
             if(which_robot > -1){
+                if (RobotIsHiding[which_robot]) {
+                    cout << "\nBut " << RobotNames[which_robot] << " is HIDING and takes NO DAMAGE!";
+                    return;
+                }
+
                 RobotLives[which_robot] = RobotLives[which_robot] - 1;
                 if(RobotLives[which_robot] == 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
@@ -458,11 +464,276 @@ class GenericRobot: private Robot
 
 };
 
+// ---- JumpBot -----                       //wakaka
+class JumpBot : public GenericRobot {
+private:
+    int jump_uses = 3;
+
+public:
+    JumpBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        cout << "JumpBot " << n << " initialized with 3 jumps available." << endl;
+    }
+
+    // Override move_to
+    void move_to(int x, int y, int index) override {
+    if (jump_uses > 0) {
+        // Find the nearest enemy robot
+        int nearest_distance = 1e9;
+        int target_x = -1, target_y = -1;
+
+        for (int i = 0; i < RobotPositionX.size(); ++i) {
+            if (i == index || RobotPositionX[i] == -5) continue; // skip self and dead robots
+
+            int dist = abs(RobotPositionX[index] - RobotPositionX[i]) + abs(RobotPositionY[index] - RobotPositionY[i]);
+            if (dist < nearest_distance) {
+                nearest_distance = dist;
+                target_x = RobotPositionX[i];
+                target_y = RobotPositionY[i];
+            }
+        }
+
+        // Attempt to jump away from nearest enemy
+        int attempts = 0;
+        int new_x, new_y;
+        do {
+            new_x = 1 + (rand() % column);
+            new_y = 1 + (rand() % row);
+
+            int new_dist = (target_x != -1) ? abs(new_x - target_x) + abs(new_y - target_y) : 0;
+
+            // Ensure jump is farther from enemy and not occupied
+            if (new_dist > nearest_distance && !findInListInt(RobotPositionX, RobotPositionY, new_x, new_y)) {
+                break;
+            }
+
+            attempts++;
+        } while (attempts < 100);
+
+        if (attempts >= 100) {
+            cout << "\nJumpBot " << RobotNames[index] << " failed to jump — no safe spot found.";
+            return;
+        }
+
+        cout << "\nJumpBot " << RobotNames[index] << " jumps from (" << RobotPositionX[index] << ", "
+             << RobotPositionY[index] << ") to (" << new_x << ", " << new_y << "). "
+             << "(" << --jump_uses << " jumps left)";
+        RobotPositionX[index] = new_x;
+        RobotPositionY[index] = new_y;
+    }
+    else {
+        GenericRobot::move_to(x, y, index); // Normal move after all jumps used
+    }
+  }
+
+};
+
+// ---- HideBot ----                                //wakaka
+class HideBot : public GenericRobot {
+private:
+    int hide_uses = 3;
+    bool is_hiding = false;
+
+public:
+    HideBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        cout << "HideBot " << n << " is ready with 3 hides available!" << endl;
+    }
+
+    void think(int x, int y, int index) override {
+        if (hide_uses > 0 && (rand() % 3 == 0)) { // 1 in 3 chance to hide to prevent the bot from too overpowered
+            is_hiding = true;
+            hide_uses--;
+            RobotIsHiding[index] = true; // update global status
+            cout << "\nHideBot " << RobotNames[index] << " is HIDING this turn! (" << hide_uses << " hides left)";
+        }
+        else {
+            is_hiding = false;
+            RobotIsHiding[index] = false; // not hiding
+            cout << "\nHideBot " << RobotNames[index] << " is NOT hiding this turn.";
+        }
+
+        look(x, y, index);
+    }
+};
+
+// ---- LongShotBot ----                             //wakaka
+class LongShotBot : public GenericRobot {
+public:
+    LongShotBot(string n, int x, int y, int h) : GenericRobot (n, x, y, h) {
+        cout << "LongShotBot " << n << " is deployed with long-range attack mode!" << endl;
+    }
+
+    void fire(int x, int y, int attackerIndex) override {
+        int dx = abs(RobotPositionX[attackerIndex] - x);
+        int dy = abs(RobotPositionY[attackerIndex] - y);
+        int manhattan_distance = dx + dy;
+
+        if (manhattan_distance > 5) {
+            cout << "\nLongShotBot " << RobotNames[attackerIndex] << " attempted to fire at (" << x << ", " << y << ") but it's out of range (range = " << manhattan_distance << ").";
+            return;
+        }
+
+        cout << "\nLongShotBot " << RobotNames[attackerIndex] << " fires from ("
+             << RobotPositionX[attackerIndex] << ", " << RobotPositionY[attackerIndex] << ") to (" << x << ", " << y << ")!";
+
+        int target_index = findInListIndex(RobotPositionX, RobotPositionY, x, y);
+
+        if (target_index != -1) {
+            if (RobotIsHiding[target_index]) {
+                cout << "nBut " << RobotNames[target_index] << " is HIDING and takes NO DAMAGE!";
+                return;
+            }
+
+            RobotLives[target_index] -= 1;
+            if (RobotLives[target_index] < 0) RobotLives[target_index] = 0;
+
+            cout << "\n" << RobotType[target_index] << " " << RobotNames[target_index]
+                 << " now has " << RobotLives[target_index] << " lives!";
+
+            how_many_lives = RobotLives[target_index];
+        }
+        else {
+            cout << "\nNo robot was found at (" << x << ", " << y << ")!";
+        }
+    }
+
+    void think(int x, int y, int index) override {
+        cout << "\nLongShotBot " << RobotNames[index] << " is scanning the battlefield...";
+
+        for (int tx = 1; tx <= column; ++tx) {
+            for (int ty = 1; ty <= row; ++ty) {
+                if (tx == RobotPositionX[index] && ty == RobotPositionY[index])
+                    continue;
+
+                int dx = abs(RobotPositionX[index] - tx);
+                int dy = abs(RobotPositionY[index] - ty);
+                int manhattan = dx + dy;
+
+                if (manhattan <= 5 && findInListInt(RobotPositionX, RobotPositionY, tx, ty)) {
+                    fire(tx, ty, index);
+                    return;
+                }
+            }
+        }
+
+        cout << "\nLongShotBot " << RobotNames[index] << " finds no target in range.";
+    }
+};
+
+// ---- SemiAutoBot ----                          //wakaka
+class SemiAutoBot : public GenericRobot {
+public:
+    SemiAutoBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        cout << "SemiAutoBot " << n << " initialized with rapid fire mode!" << endl;
+    }
+
+    void fire(int x, int y, int index) override {
+        cout << "\nSemiAutoBot " << RobotNames[index] << " unleashes rapid fire at (" << x << ", " << y << ")!";
+
+        int hitCount = 0;
+
+        for (int shot =1; shot <= 3; ++shot) {
+            int chance = rand() % 100; // 0 to 99
+            cout << "\nShot " << shot << ": ";
+            if (chance < 70) {
+                cout << "Hit!";
+                hitCount++;
+            }
+            else {
+                cout << "Miss!";
+            }
+        }
+
+        if (hitCount == 0) {
+            cout << "\nAll 3 shots missed!";
+            return;
+        }
+
+        // Check which robot is hit
+        int target_index = findInListIndex(RobotPositionX, RobotPositionY, x, y);
+        if (target_index != -1) {
+            if (RobotIsHiding[target_index]) {
+                cout << "\nBut " << RobotNames[target_index] << " is HIDING and takes NO DAMAGE!";
+                return;
+            }
+
+            RobotLives[target_index] -= hitCount;
+
+            if (RobotLives[target_index] < 0) RobotLives[target_index] = 0;
+
+            cout << "\n" << RobotType[target_index] << " " << RobotNames[target_index]
+                 << " was hit " << hitCount << " times and now has " << RobotLives[target_index] << " lives!";
+
+            how_many_lives = RobotLives[target_index]; // for respawn check
+        }
+        else {
+            cout << "\nNo robot was found at (" << x << ", " << y << ")!";
+        }
+    }
+};
+
+// ---- TrackBot ----                        //wakaka
+class TrackBot : public GenericRobot {
+public:
+    TrackBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        cout << "TrackBot " << n << " activated with target-seeking movement!" << endl;
+    }
+
+    void think(int x, int y, int index) override {
+        int self_x = RobotPositionX[index];
+        int self_y = RobotPositionY[index];
+        int closestDist = 1000;
+        int target_x = -1, target_y = -1;
+
+        // Find the nearest robot (excluding self)
+        for (int i = 0; i < RobotPositionX.size(); ++i) {
+            if (i == index || RobotPositionX[i] == -5) continue;
+
+            int dist = abs(self_x - RobotPositionX[i]) + abs(self_y - RobotPositionY[i]);
+
+            // Saves closect robot's position
+            if (dist < closestDist) {
+                closestDist = dist;
+                target_x = RobotPositionX[i];
+                target_y = RobotPositionY[i];
+            }
+        }
+
+        if (target_x == -1 || target_y == -1) {
+            cout << "\nTrackBot " << RobotNames[index] << " found no targets to track.";
+            return;
+        }
+
+        // Move one step toward the target
+        int move_x = self_x;
+        int move_y = self_y;
+
+        if (self_x < target_x) move_x++;
+        else if (self_x > target_x) move_x--;
+
+        if (self_y < target_y) move_y++;
+        else if (self_y > target_y) move_y--;
+
+        // Avoid stepping on another robot
+        if (!findInListInt(RobotPositionX, RobotPositionY, move_x, move_y)) {
+            move_to(move_x, move_y, index);
+            RobotPositionX[index] = move_x;
+            RobotPositionY[index] = move_y;
+        } else {
+            cout << "\nTrackBot " << RobotNames[index] << " tried to move but the position was occupied.";
+        }
+
+        // After moving, attempt to fire
+        look(RobotPositionX[index], RobotPositionY[index], index);
+    }
+};
+
+
 // Program purposes
 bool loop = true;
 
 // Actual program
 int main() {
+
     // Always randomized
     srand(time(0));
     ifstream file("fileInputRobot.txt");
@@ -572,13 +843,37 @@ int main() {
     cout << "*\n\n";
     // Program presentation end
 
-    // Object vector
+    // Object vector                                //wakaka
     vector<GenericRobot> GenericRobots;
+    vector<HideBot> HideBots;
+    vector<SemiAutoBot> SemiAutoBots;
+    vector<LongShotBot> LongShotBots;
+    vector<TrackBot> TrackBots;
 
-    // Creating the objects
+    // Creating the objects                        //wakaka
     for (int i = 0; i < robot_num; ++i) {
-        GenericRobots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        string type = RobotType[i];
         RobotLives.push_back(3);
+        RobotIsHiding.push_back(false);
+
+        if (RobotType[i] == "HideBot") {
+            HideBots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        }
+        else if (RobotType[i] == "JumpBot") {
+            GenericRobots.emplace_back(JumpBot(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3));
+        }
+        else if (RobotType[i] == "LongShotBot") {
+            LongShotBots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        }
+        else if (RobotType[i] == "SemiAutoBot") {
+            SemiAutoBots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        }
+        else if (RobotType[i] == "TrackBot") {
+            TrackBots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        }
+        else {
+            GenericRobots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        }
     }
 
     // Do this program until the amount of steps is sufficient
@@ -586,8 +881,9 @@ int main() {
         cout << "\n[TURN " << counter << "]";
 
         // 1 robot is able to respawn
-        bool respawn = true;
         for (int i = 0; i < robot_num; ++i) {
+            bool respawn = true;
+
             // Respawn the robot
             if(GenericRobots[i].ShowX() <= -5 && respawn == true){
                 int new_x, new_y;
@@ -598,23 +894,93 @@ int main() {
                     new_x = (rand() % row) + 1;
                     new_y = (rand() % column) + 1;
                 }
-                GenericRobots[i].SetNewXY(new_x, new_y);
+
+                if (RobotType[i] == "HideBot")                   //wakaka
+                    HideBots[i].SetNewXY(new_x, new_y);
+                else if (RobotType[i] == "LongShotBot")
+                    LongShotBots[i].SetNewXY(new_x, new_y);
+                else if (RobotType[i] == "SemiAutoBot")
+                    SemiAutoBots[i].SetNewXY(new_x, new_y);
+                else if (RobotType[i] == "TrackBot")
+                    TrackBots[i].SetNewXY(new_x, new_y);
+                else
+                    GenericRobots[i].SetNewXY(new_x, new_y);
+
                 RobotPositionX[i] = new_x;
                 RobotPositionY[i] = new_y;
-                GenericRobots[i].RespawnQuote();
+
+                if (RobotType[i] == "HideBot")                  //wakaka
+                    HideBots[i].RespawnQuote();
+                else if (RobotType[i] == "LongShotBot")
+                    LongShotBots[i].RespawnQuote();
+                else if (RobotType[i] == "SemiAutoBot")
+                    SemiAutoBots[i].RespawnQuote();
+                else if (RobotType[i] == "TrackBot")
+                    TrackBots[i].RespawnQuote();
+                else
+                    GenericRobots[i].RespawnQuote();
                 // No robot can be respawned anymore until the next round
                 respawn = false;
             }
-            if(GenericRobots[i].ShowX() != -5){
-                // If robot is not dead, then it will do its action
-                GenericRobots[i].think(RobotPositionX[i],RobotPositionY[i],i);
+
+            if (RobotType[i] == "HideBot") {                                         //wakaka
+                if (RobotPositionX[i] != -5) {
+                    HideBots[i].think(RobotPositionX[i], RobotPositionY[i], i);
+                }
             }
-            if(how_many_lives < 3){
-                GenericRobots[which_robot].LoseLives();
+            else if (RobotType[i] == "LongShotBot") {
+                if (RobotPositionX[i] != -5)
+                    LongShotBots[i].think(RobotPositionX[i], RobotPositionY[i], i);
+            }
+            else if (RobotType[i] == "SemiAutoBot") {
+                if (RobotPositionX[i] != -5) {
+                    SemiAutoBots[i].think(RobotPositionX[i], RobotPositionY[i], i);
+                }
+            }
+            else if (RobotType[i] == "TrackBot") {
+                if (RobotPositionX[i] != -5) {
+                    TrackBots[i].think(RobotPositionX[i], RobotPositionY[i], i);
+                }
+            }
+            else {
+                if (RobotPositionX[i] != -5) {
+                    GenericRobots[i].think(RobotPositionX[i], RobotPositionX[i], i);
+                }
+            }
+            if(how_many_lives < 3){                                      //wakaka
+                if (RobotType[which_robot] == "HideBot") {
+                    HideBots[which_robot].LoseLives();
+                }
+                else if (RobotType[which_robot] == "LongShotBot") {
+                    LongShotBots[which_robot].LoseLives();
+                }
+                else if (RobotType[which_robot] == "SemiAutoBot") {
+                    SemiAutoBots[which_robot].LoseLives();
+                }
+                else if (RobotType[which_robot] == "TrackBot") {
+                    TrackBots[which_robot].LoseLives();
+                }
+                else {
+                    GenericRobots[which_robot].LoseLives();
+                }
             }
             if(how_many_lives == 0){
                 // If lives reaches 0, it dies and doesn't appear into the battlefield again until the next turn
-                GenericRobots[which_robot].RobotReset();
+                if (RobotType[which_robot] == "HideBot") {
+                    HideBots[which_robot].RobotReset();                    //wakaka
+                }
+                else if (RobotType[which_robot] == "LongShotBot") {
+                    LongShotBots[which_robot].RobotReset();
+                }
+                else if (RobotType[which_robot] == "SemiAutoBot") {
+                    SemiAutoBots[which_robot].RobotReset();
+                }
+                else if (RobotType[which_robot] == "TrackBot") {
+                    TrackBots[which_robot].RobotReset();
+                }
+                else {
+                    GenericRobots[which_robot].RobotReset();
+                }
                 RobotLives[which_robot] = 3;
                 RobotPositionX[which_robot] = -5;
                 RobotPositionY[which_robot] = -5;
