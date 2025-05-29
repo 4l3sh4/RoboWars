@@ -229,7 +229,7 @@ class GenericRobot: public Robot
 
             if (shells == 0) {
                 cout << "\nGenericRobot " << name << " is out of shells and now self-destructs!";
-                selfDestruct(index); //should add self destruct logic here? or add void self destructs
+                selfDestruct(index);
                 return; // Stop execution if robot has no shells //picheolin
             }
 
@@ -467,6 +467,7 @@ class GenericRobot: public Robot
             robot_check = true;
         };
 
+
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
             shells--; //decrease shells by 1 //picheolin
@@ -501,8 +502,7 @@ class ThirtyShotBot: public GenericRobot{
     }
 };
 
-class ScoutBot: public GenericRobot
-{
+class ScoutBot: public GenericRobot{
     private:
     int look_uses_left = 3;
 
