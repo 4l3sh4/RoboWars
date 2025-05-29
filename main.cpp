@@ -95,6 +95,7 @@ int robot_num;
 // Type, name, and initial position of each robot
 vector<string> RobotType, RobotNames;
 vector<int> RobotPositionX, RobotPositionY, RobotLives;
+vector<bool> RobotAlive; //picheolin -> to flag the destructed ones later
 
 // Initial position
 int position_x;
@@ -170,9 +171,16 @@ class Robot: public MovingRobot, public ShootingRobot, public SeeingRobot, publi
         int lives;
 };
 
-class GenericRobot: private Robot
+vector<Robot> Robots;
+
+class GenericRobot: public Robot
 {
     public:
+
+        int shells = 10; //picheolin
+        int respawn_count = 0;  // Tracks how many times the robot has respawned
+        const int MAX_RESPAWNS = 3;
+
         GenericRobot(string n, int x, int y, int h){
             name = n;
             robo_position_x = x;
@@ -191,6 +199,7 @@ class GenericRobot: private Robot
             lives = 3;
             robo_position_x = -5;
             robo_position_y = -5;
+            respawn_count++; //picheolin
         }
 
         // New position-x and position-y for the respawned robot!
@@ -208,8 +217,35 @@ class GenericRobot: private Robot
             cout << "\nGenericRobot " << name << " has respawned at " << robo_position_x << ", " << robo_position_y << "!";
         }
 
+        void selfDestruct(int index) { //picheolin
+            robo_position_x = -5;
+            robo_position_y = -5;
+            RobotPositionX[index] = -5;
+            RobotPositionY[index] = -5;
+            RobotLives[index] = 0;
+            RobotAlive[index] = false;
+        }
 
         virtual void think(int x, int y, int index) override{
+            if (!RobotAlive[index]) return; // skip if robot is destructed
+
+            if (shells == 0) {
+                cout << "\nGenericRobot " << name << " is out of shells! Shutting down permanently.";
+                selfDestruct(index);
+                return; // Stop execution if robot has no shells //picheolin
+            }
+
+            if (lives <= 0) {
+                if (respawn_count < MAX_RESPAWNS) {
+                    RobotReset(); // respawns with 3 lives and moves off grid
+                    return;
+                } else {
+                    cout << "\nGenericRobot " << name << " has no lives left and is now lost in the battlefield.";
+                    selfDestruct(index);
+                    return;
+                }
+            }
+
             cout << "\nGenericRobot " << name << " is strategising...";
             how_many_lives = 3;
             look(x,y,index);
@@ -435,6 +471,7 @@ class GenericRobot: private Robot
 
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
+            shells--; //decrease shells by 1 //picheolin
 
             // Check which robot got hit
             which_robot = findInListIndex(RobotPositionX,RobotPositionY,x,y);
@@ -447,6 +484,74 @@ class GenericRobot: private Robot
                 else if(RobotLives[which_robot] == 0){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
                     cout << ", " << RobotPositionY[which_robot] << " is now DESTROYED!";
+
+                    // --- Upgrade the attacker robot --- picheolin
+                    int abilityType = rand() % 3;  // 0 = moving, 1 = shooting, 2 = seeing
+                    string chosenType;
+
+                    if (abilityType == 0 && !MovingRobotType.empty()) {
+                        chosenType = MovingRobotType[rand() % MovingRobotType.size()];
+                    }
+                    else if (abilityType == 1 && !ShootingRobotType.empty()) {
+                        chosenType = ShootingRobotType[rand() % ShootingRobotType.size()];
+                    }
+                    else if (abilityType == 2 && !SeeingRobotType.empty()) {
+                        chosenType = SeeingRobotType[rand() % SeeingRobotType.size()];
+                    }
+
+                    if (!chosenType.empty()) {
+                        cout << "\n" << RobotNames[index] << " upgrades and transforms into a " << chosenType << "!";
+
+                        // Save current robot info
+                        string oldName = RobotNames[index];
+                        int oldX = RobotPositionX[index];
+                        int oldY = RobotPositionY[index];
+                        int oldLives = RobotLives[index];
+
+                        // Delete old robot object
+                        delete Robots[index];
+                        Robots[index] = nullptr;
+
+                        // Create new robot based on chosenType
+                        if (chosenType == "HideBot") {
+                            Robots[index] = new HideBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "JumpBot") {
+                            Robots[index] = new JumpBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "SprintBot") {
+                            Robots[index] = new SprintBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "LongShotBot") {
+                            Robots[index] = new LongShotBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "SemiAutoBot") {
+                            Robots[index] = new SemiAutoBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "ThirtyShotBot") {
+                            Robots[index] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "PreciseShotBot") {
+                            Robots[index] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "ScoutBot") {
+                            Robots[index] = new ScoutBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "TrackBot") {
+                            Robots[index] = new TrackBot(oldName, oldX, oldY, oldLives);
+                        }
+                        else if (chosenType == "Bot2020") {
+                            Robots[index] = new Bot2020(oldName, oldX, oldY, oldLives);
+                        }
+                        else {
+                            // fallback to generic robot
+                            Robots[index] = new GenericRobot(oldName, oldX, oldY, oldLives);
+                        }
+
+                        // Update robot type for the attacker
+                        RobotType[index] = chosenType;
+                    }
+
                 }
                 else if(RobotLives[which_robot] > 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
@@ -456,6 +561,51 @@ class GenericRobot: private Robot
             }
         };
 
+};
+
+class ThirtyShotBot: public GenericRobot{
+    public:
+    ThirtyShotBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        shells = 30;  // Override shells count to 30
+        cout << "ThirtyShotBot " << name << " with " << shells << " shells is ready!\n";
+    }
+};
+
+class ScoutBot: public GenericRobot{
+    private:
+    int look_uses_left = 3;
+
+    public:
+    ScoutBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        look_uses_left = 3;
+        cout << "ScoutBot " << name << " deployed with battlefield scan ability (3 uses)." << endl;
+    }
+
+    void look(int x, int y, int index) override {
+        if (look_uses_left > 0) {
+            cout << "\nScoutBot " << name << " is scanning the entire battlefield!\n";
+            look_uses_left--;
+
+            bool found = false;
+            for (int i = 0; i < RobotNames.size(); ++i) {
+                if (i != index && RobotAlive[i]) {
+                    cout << RobotType[i] << " " << RobotNames[i]
+                         << " found at " << RobotPositionX[i] << ", "
+                         << RobotPositionY[i] << " with "
+                         << RobotLives[i] << " lives.\n";
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                cout << "No other robots detected on the battlefield." << endl;
+            }
+
+        } else {
+            cout << "\nScoutBot " << name << " has no battlefield scans left. Performing normal look.\n";
+            GenericRobot::look(x, y, index);  // fallback to base behavior
+        }
+    }
 };
 
 // Program purposes
@@ -489,6 +639,7 @@ int main() {
             if(line.find("robots: ") == 0){
                 line.erase(0,7);
                 robot_num = stoi(line);
+                RobotAlive = vector<bool>(robot_num, true); //picheolin
             }
 
             // Check robot type
@@ -573,14 +724,13 @@ int main() {
     // Program presentation end
 
     // Object vector
-    vector<GenericRobot> GenericRobots;
+    vector<GenericRobot*> GenericRobots;
 
     // Creating the objects
     for (int i = 0; i < robot_num; ++i) {
-        GenericRobots.emplace_back(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3);
+        GenericRobots.push_back(new GenericRobot(RobotNames[i], RobotPositionX[i], RobotPositionY[i], 3));
         RobotLives.push_back(3);
     }
-
     // Do this program until the amount of steps is sufficient
     while(counter <= steps){
         cout << "\n[TURN " << counter << "]";
@@ -589,7 +739,7 @@ int main() {
         bool respawn = true;
         for (int i = 0; i < robot_num; ++i) {
             // Respawn the robot
-            if(GenericRobots[i].ShowX() <= -5 && respawn == true){
+            if(GenericRobots[i]->ShowX() <= -5 && respawn == true){
                 int new_x, new_y;
                 new_x = (rand() % row) + 1;
                 new_y = (rand() % column) + 1;
@@ -598,23 +748,23 @@ int main() {
                     new_x = (rand() % row) + 1;
                     new_y = (rand() % column) + 1;
                 }
-                GenericRobots[i].SetNewXY(new_x, new_y);
+                GenericRobots[i]->SetNewXY(new_x, new_y);
                 RobotPositionX[i] = new_x;
                 RobotPositionY[i] = new_y;
-                GenericRobots[i].RespawnQuote();
+                GenericRobots[i]->RespawnQuote();
                 // No robot can be respawned anymore until the next round
                 respawn = false;
             }
-            if(GenericRobots[i].ShowX() != -5){
+            if(GenericRobots[i]->ShowX() != -5){
                 // If robot is not dead, then it will do its action
-                GenericRobots[i].think(RobotPositionX[i],RobotPositionY[i],i);
+                GenericRobots[i]->think(RobotPositionX[i],RobotPositionY[i],i);
             }
             if(how_many_lives < 3){
-                GenericRobots[which_robot].LoseLives();
+                GenericRobots[which_robot]->LoseLives();
             }
             if(how_many_lives == 0){
                 // If lives reaches 0, it dies and doesn't appear into the battlefield again until the next turn
-                GenericRobots[which_robot].RobotReset();
+                GenericRobots[which_robot]->RobotReset();
                 RobotLives[which_robot] = 3;
                 RobotPositionX[which_robot] = -5;
                 RobotPositionY[which_robot] = -5;
