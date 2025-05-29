@@ -95,6 +95,7 @@ int robot_num;
 // Type, name, and initial position of each robot
 vector<string> RobotType, RobotNames;
 vector<int> RobotPositionX, RobotPositionY, RobotLives;
+vector<bool> RobotAlive; //picheolin -> to flag the destructed ones later
 
 // Initial position
 int position_x;
@@ -173,6 +174,11 @@ class Robot: public MovingRobot, public ShootingRobot, public SeeingRobot, publi
 class GenericRobot: private Robot
 {
     public:
+
+        int shells = 10; //picheolin
+        int respawn_count = 0;  // Tracks how many times the robot has respawned
+        const int MAX_RESPAWNS = 3;
+
         GenericRobot(string n, int x, int y, int h){
             name = n;
             robo_position_x = x;
@@ -191,6 +197,7 @@ class GenericRobot: private Robot
             lives = 3;
             robo_position_x = -5;
             robo_position_y = -5;
+            respawn_count++; //picheolin
         }
 
         // New position-x and position-y for the respawned robot!
@@ -208,8 +215,35 @@ class GenericRobot: private Robot
             cout << "\nGenericRobot " << name << " has respawned at " << robo_position_x << ", " << robo_position_y << "!";
         }
 
+        void selfDestruct(int index) { //picheolin
+            robo_position_x = -5;
+            robo_position_y = -5;
+            RobotPositionX[index] = -5;
+            RobotPositionY[index] = -5;
+            RobotLives[index] = 0;
+            RobotAlive[index] = false;
+        }
 
         virtual void think(int x, int y, int index) override{
+            if (!RobotAlive[index]) return; // skip if robot is destructed
+
+            if (shells == 0) {
+                cout << "\nGenericRobot " << name << " is out of shells and now self-destructs!";
+                selfDestruct(index); //should add self destruct logic here? or add void self destructs
+                return; // Stop execution if robot has no shells //picheolin
+            }
+
+            if (lives <= 0) {
+                if (respawn_count < MAX_RESPAWNS) {
+                    RobotReset(); // respawns with 3 lives and moves off grid
+                    return;
+                } else {
+                    cout << "\nGenericRobot " << name << " has no lives left and exceeded respawn limit. Self-destructing!";
+                    selfDestruct(index);
+                    return;
+                }
+            }
+
             cout << "\nGenericRobot " << name << " is strategising...";
             how_many_lives = 3;
             look(x,y,index);
@@ -435,6 +469,7 @@ class GenericRobot: private Robot
 
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
+            shells--; //decrease shells by 1 //picheolin
 
             // Check which robot got hit
             which_robot = findInListIndex(RobotPositionX,RobotPositionY,x,y);
@@ -457,6 +492,15 @@ class GenericRobot: private Robot
         };
 
 };
+
+class ThirthyShotBot: private GenericRobot
+{
+    public:
+    ThirtyShotBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        shells = 30;  // Override shells count to 30
+        cout << "ThirtyShotBot " << name << " with " << shells << " shells is ready!\n";
+    }
+}
 
 // Program purposes
 bool loop = true;
@@ -489,6 +533,7 @@ int main() {
             if(line.find("robots: ") == 0){
                 line.erase(0,7);
                 robot_num = stoi(line);
+                RobotAlive = vector<bool>(robot_num, true); //picheolin
             }
 
             // Check robot type
