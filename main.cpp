@@ -171,7 +171,7 @@ class Robot: public MovingRobot, public ShootingRobot, public SeeingRobot, publi
         int lives;
 };
 
-class GenericRobot: private Robot
+class GenericRobot: public Robot
 {
     public:
 
@@ -493,14 +493,51 @@ class GenericRobot: private Robot
 
 };
 
-class ThirthyShotBot: private GenericRobot
-{
+class ThirtyShotBot: public GenericRobot{
     public:
     ThirtyShotBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
         shells = 30;  // Override shells count to 30
         cout << "ThirtyShotBot " << name << " with " << shells << " shells is ready!\n";
     }
-}
+};
+
+class ScoutBot: public GenericRobot
+{
+    private:
+    int look_uses_left = 3;
+
+    public:
+    ScoutBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {
+        look_uses_left = 3;
+        cout << "ScoutBot " << name << " deployed with battlefield scan ability (3 uses)." << endl;
+    }
+
+    void look(int x, int y, int index) override {
+        if (look_uses_left > 0) {
+            cout << "\nScoutBot " << name << " is scanning the entire battlefield!\n";
+            look_uses_left--;
+
+            bool found = false;
+            for (int i = 0; i < RobotNames.size(); ++i) {
+                if (i != index && RobotAlive[i]) {
+                    cout << RobotType[i] << " " << RobotNames[i]
+                         << " found at " << RobotPositionX[i] << ", "
+                         << RobotPositionY[i] << " with "
+                         << RobotLives[i] << " lives.\n";
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                cout << "No other robots detected on the battlefield." << endl;
+            }
+
+        } else {
+            cout << "\nScoutBot " << name << " has no battlefield scans left. Performing normal look.\n";
+            GenericRobot::look(x, y, index);  // fallback to base behavior
+        }
+    }
+};
 
 // Program purposes
 bool loop = true;
