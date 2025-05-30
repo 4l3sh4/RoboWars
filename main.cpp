@@ -753,6 +753,7 @@ int main() {
                     }
                     else */if (chosenType == "ThirtyShotBot") {
                         GenericRobots[which_robot] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
+                        RobotShells[i] = 30;
                     }
                     /*else if (chosenType == "PreciseShotBot") {
                         GenericRobots[which_robot] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
