@@ -62,6 +62,9 @@ bool move_check = true;
 bool robot_blocked;
 int which_robot;
 int how_many_lives;
+bool upgradeAvail = false;
+int upgrade_count = 0;
+const int MAX_UPGRADE = 3;
 
 // For randomized numbers (used for the look() function)
 int rand_x;
@@ -171,8 +174,6 @@ class Robot: public MovingRobot, public ShootingRobot, public SeeingRobot, publi
         int lives;
 };
 
-vector<Robot> Robots;
-
 class GenericRobot: public Robot
 {
     public:
@@ -180,6 +181,9 @@ class GenericRobot: public Robot
         int shells = 10; //picheolin
         int respawn_count = 0;  // Tracks how many times the robot has respawned
         const int MAX_RESPAWNS = 3;
+        bool upgradeAvail = false;
+        int upgrade_count = 0;
+        const int MAX_UPGRADE = 3;
 
         GenericRobot(string n, int x, int y, int h){
             name = n;
@@ -484,74 +488,7 @@ class GenericRobot: public Robot
                 else if(RobotLives[which_robot] == 0){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
                     cout << ", " << RobotPositionY[which_robot] << " is now DESTROYED!";
-
-                    // --- Upgrade the attacker robot --- picheolin
-                    int abilityType = rand() % 3;  // 0 = moving, 1 = shooting, 2 = seeing
-                    string chosenType;
-
-                    if (abilityType == 0 && !MovingRobotType.empty()) {
-                        chosenType = MovingRobotType[rand() % MovingRobotType.size()];
-                    }
-                    else if (abilityType == 1 && !ShootingRobotType.empty()) {
-                        chosenType = ShootingRobotType[rand() % ShootingRobotType.size()];
-                    }
-                    else if (abilityType == 2 && !SeeingRobotType.empty()) {
-                        chosenType = SeeingRobotType[rand() % SeeingRobotType.size()];
-                    }
-
-                    if (!chosenType.empty()) {
-                        cout << "\n" << RobotNames[index] << " upgrades and transforms into a " << chosenType << "!";
-
-                        // Save current robot info
-                        string oldName = RobotNames[index];
-                        int oldX = RobotPositionX[index];
-                        int oldY = RobotPositionY[index];
-                        int oldLives = RobotLives[index];
-
-                        // Delete old robot object
-                        delete Robots[index];
-                        Robots[index] = nullptr;
-
-                        // Create new robot based on chosenType
-                        if (chosenType == "HideBot") {
-                            Robots[index] = new HideBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "JumpBot") {
-                            Robots[index] = new JumpBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "SprintBot") {
-                            Robots[index] = new SprintBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "LongShotBot") {
-                            Robots[index] = new LongShotBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "SemiAutoBot") {
-                            Robots[index] = new SemiAutoBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "ThirtyShotBot") {
-                            Robots[index] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "PreciseShotBot") {
-                            Robots[index] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "ScoutBot") {
-                            Robots[index] = new ScoutBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "TrackBot") {
-                            Robots[index] = new TrackBot(oldName, oldX, oldY, oldLives);
-                        }
-                        else if (chosenType == "Bot2020") {
-                            Robots[index] = new Bot2020(oldName, oldX, oldY, oldLives);
-                        }
-                        else {
-                            // fallback to generic robot
-                            Robots[index] = new GenericRobot(oldName, oldX, oldY, oldLives);
-                        }
-
-                        // Update robot type for the attacker
-                        RobotType[index] = chosenType;
-                    }
-
+                    upgradeAvail = true;
                 }
                 else if(RobotLives[which_robot] > 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
@@ -758,6 +695,7 @@ int main() {
             if(GenericRobots[i]->ShowX() != -5){
                 // If robot is not dead, then it will do its action
                 GenericRobots[i]->think(RobotPositionX[i],RobotPositionY[i],i);
+                //picheolin - try add upgrade logic here
             }
             if(how_many_lives < 3){
                 GenericRobots[which_robot]->LoseLives();
@@ -770,6 +708,79 @@ int main() {
                 RobotPositionY[which_robot] = -5;
             }
             cout << "\n\n";
+
+            if (upgradeAvail && upgrade_count < MAX_UPGRADE) {
+
+                // --- Upgrade the attacker robot --- picheolin
+                int abilityType = rand() % 3;  // 0 = moving, 1 = shooting, 2 = seeing
+                string chosenType;
+
+                if (abilityType == 0) {
+                    chosenType = MovingRobotType[rand() % MovingRobotType.size()];
+                }
+                else if (abilityType == 1) {
+                    chosenType = ShootingRobotType[rand() % ShootingRobotType.size()];
+                }
+                else if (abilityType == 2) {
+                    chosenType = SeeingRobotType[rand() % SeeingRobotType.size()];
+                }
+
+                if (!chosenType.empty()) {
+                    cout << "\n" << RobotNames[which_robot] << " upgrades and transforms into a " << chosenType << "!";
+
+                    // Save current robot info
+                    string oldName = RobotNames[which_robot];
+                    int oldX = RobotPositionX[which_robot];
+                    int oldY = RobotPositionY[which_robot];
+                    int oldLives = RobotLives[which_robot];
+
+                    // Delete old robot object
+                    delete GenericRobots[which_robot];
+                    GenericRobots[which_robot] = nullptr;
+
+                    // Create new robot based on chosenType
+                    if (chosenType == "HideBot") {
+                        GenericRobots[which_robot] = new HideBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "JumpBot") {
+                        GenericRobots[which_robot] = new JumpBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "SprintBot") {
+                        GenericRobots[which_robot] = new SprintBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "LongShotBot") {
+                        GenericRobots[which_robot] = new LongShotBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "SemiAutoBot") {
+                        GenericRobots[which_robot] = new SemiAutoBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "ThirtyShotBot") {
+                        GenericRobots[which_robot] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "PreciseShotBot") {
+                        GenericRobots[which_robot] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "ScoutBot") {
+                        GenericRobots[which_robot] = new ScoutBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "TrackBot") {
+                        GenericRobots[which_robot] = new TrackBot(oldName, oldX, oldY, oldLives);
+                    }
+                    else if (chosenType == "Bot2020") {
+                        GenericRobots[which_robot] = new Bot2020(oldName, oldX, oldY, oldLives);
+                    }
+                    else {
+                        // fallback to generic robot
+                        GenericRobots[which_robot] = new GenericRobot(oldName, oldX, oldY, oldLives);
+                    }
+
+                    // Update robot type for the attacker
+                    RobotType[which_robot] = chosenType;
+                }
+
+                upgradeAvail = false;
+                upgrade_count++;
+            }
 
             // Print the aftermath of the current robot's actions
             for(int y = 1; y <= row; ++y){
