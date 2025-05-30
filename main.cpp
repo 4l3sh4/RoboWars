@@ -66,7 +66,6 @@ int how_many_lives;
 // For randomized numbers (used for the look() function)
 int rand_x;
 int rand_y;
-int rand_num_fire;
 
 int after_rand_x;
 int after_rand_y;
@@ -171,7 +170,7 @@ class Robot: public MovingRobot, public ShootingRobot, public SeeingRobot, publi
         int lives;
 };
 
-class GenericRobot: private Robot
+class GenericRobot: public Robot
 {
     public:
         GenericRobot(string n, int x, int y, int h){
@@ -293,6 +292,7 @@ class GenericRobot: private Robot
             if(robot_check == false){
                 cout << "GenericRobot " << name << " could not find any robots...";
             }
+
         };
 
         // Reminder to Alesha: Fix the AI for the move_to() action to avoid possible softlocking.
@@ -300,10 +300,9 @@ class GenericRobot: private Robot
             robot_blocked = false;
 
             if(move_check == true){
-                // Top left
-                if((robo_position_x == x + 2) && (robo_position_y == y + 2)){
+                if((robo_position_x == x - 2) && (robo_position_y == y - 2)){
                     robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y-1);
-                    if(robot_check == false){
+                    if(robot_check == true){
                         robo_position_x -= 1;
                         robo_position_y -= 1;
                         RobotPositionX[index] -= 1;
@@ -313,10 +312,9 @@ class GenericRobot: private Robot
                         robot_blocked = true;
                     }
                 }
-                // Top right
-                else if((robo_position_x == x - 2) && (robo_position_y == y + 2)){
+                if((robo_position_x == x + 2) && (robo_position_y == y - 2)){
                     robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y-1);
-                    if(robot_check == false){
+                    if(robot_check == true){
                         robo_position_x += 1;
                         robo_position_y -= 1;
                         RobotPositionX[index] += 1;
@@ -326,10 +324,9 @@ class GenericRobot: private Robot
                         robot_blocked = true;
                     }
                 }
-                // Bottom left
-                else if((robo_position_x == x + 2) && (robo_position_y == y - 2)){
+                if((robo_position_x == x - 2) && (robo_position_y == y + 2)){
                     robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+1);
-                    if(robot_check == false){
+                    if(robot_check == true){
                         robo_position_x -= 1;
                         robo_position_y += 1;
                         RobotPositionX[index] -= 1;
@@ -339,10 +336,9 @@ class GenericRobot: private Robot
                         robot_blocked = true;
                     }
                 }
-                // Bottom right
-                else if((robo_position_x == x - 2) && (robo_position_y == y - 2)){
+                if((robo_position_x == x + 2) && (robo_position_y == y + 2)){
                     robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+1);
-                    if(robot_check == false){
+                    if(robot_check == true){
                         robo_position_x += 1;
                         robo_position_y += 1;
                         RobotPositionX[index] += 1;
@@ -352,439 +348,63 @@ class GenericRobot: private Robot
                         robot_blocked = true;
                     }
                 }
-                // Top middle, left
-                else if(robo_position_x == x + 1 && robo_position_y == y + 2){
-                    for(int i = -1; i <= 0; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
-                        if(robot_check == false){
-                            robo_position_x += i;
-                            RobotPositionX[index] += i;
-                            robo_position_y -= 1;
-                            RobotPositionY[index] -= 1;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
-                            robot_blocked = true;
-                        }
-                    }
-                }
-                // Top middle, middle
-                else if(robo_position_x == x && robo_position_y == y + 2){
-                    if(robo_position_x == 1){
-                        for(int i = 0; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y -= 1;
-                                RobotPositionY[index] -= 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
-                    }
-                    else if(robo_position_x == column){
-                        for(int i = -1; i <= 0; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y -= 1;
-                                RobotPositionY[index] -= 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
+                if(((robo_position_x == x - 1) || (robo_position_x == x) || (robo_position_x == x + 1)) && (robo_position_y == y - 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x,robo_position_y-1);
+                    if(robot_check == true){
+                        robo_position_y -= 1;
+                        RobotPositionY[index] -= 1;
                     }
                     else{
-                        for(int i = -1; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y -= 1;
-                                RobotPositionY[index] -= 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                }
-                // Top middle, right
-                else if(robo_position_x == x - 1 && robo_position_y == y + 2){
-                    for(int i = 0; i <= 1; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
-                        if(robot_check == false){
-                            robo_position_x += i;
-                            RobotPositionX[index] += i;
-                            robo_position_y -= 1;
-                            RobotPositionY[index] -= 1;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
                         robot_blocked = true;
-                        }
                     }
                 }
-                // Leftmost, top
-                else if(robo_position_x == x + 2 && robo_position_y == y + 1){
-                    for(int i = -1; i <= 0; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
-                        if(robot_check == false){
-                            robo_position_x -= 1;
-                            RobotPositionX[index] -= 1;
-                            robo_position_y += i;
-                            RobotPositionY[index] += i;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
-                        robot_blocked = true;
-                        }
-                    }
-                }
-                // Leftmost, middle
-                else if(robo_position_x == x + 2 && robo_position_y == y){
-                    if(robo_position_y == 1){
-                        for(int i = 0; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x -= 1;
-                                RobotPositionX[index] -= 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
-                    }
-                    else if(robo_position_y == row){
-                        for(int i = -1; i <= 0; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x -= 1;
-                                RobotPositionX[index] -= 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
+                if(((robo_position_y == y - 1) || (robo_position_y == y) || (robo_position_y == y + 1)) && (robo_position_x == x - 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y);
+                    if(robot_check == true){
+                        robo_position_x -= 1;
+                        RobotPositionX[index] -= 1;
                     }
                     else{
-                        for(int i = -1; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x -= 1;
-                                RobotPositionX[index] -= 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                }
-                // Leftmost, bottom
-                else if(robo_position_x == x + 2 && robo_position_y == y - 1){
-                    for(int i = 0; i <= 1; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
-                        if(robot_check == false){
-                            robo_position_x -= 1;
-                            RobotPositionX[index] -= 1;
-                            robo_position_y += i;
-                            RobotPositionY[index] += i;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
                         robot_blocked = true;
-                        }
                     }
                 }
-                // Rightmost, top
-                else if(robo_position_x == x - 2 && robo_position_y == y + 1){
-                    for(int i = -1; i <= 0; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
-                        if(robot_check == false){
-                            robo_position_x += 1;
-                            RobotPositionX[index] += 1;
-                            robo_position_y += i;
-                            RobotPositionY[index] += i;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
-                        robot_blocked = true;
-                        }
-                    }
-                }
-                // Rightmost, middle
-                else if(robo_position_x == x - 2 && robo_position_y == y){
-                    if(robo_position_y == 1){
-                        for(int i = 0; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x += 1;
-                                RobotPositionX[index] += 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                    else if(robo_position_y == row){
-                        for(int i = -1; i <= 0; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x += 1;
-                                RobotPositionX[index] += 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
+                if(((robo_position_y == y - 1) || (robo_position_y == y) || (robo_position_y == y + 1)) && (robo_position_x == x + 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y);
+                    if(robot_check == true){
+                        robo_position_x += 1;
+                        RobotPositionX[index] += 1;
                     }
                     else{
-                        for(int i = -1; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
-                            if(robot_check == false){
-                                robo_position_x += 1;
-                                RobotPositionX[index] += 1;
-                                robo_position_y += i;
-                                RobotPositionY[index] += i;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                }
-                // Rightmost, bottom
-                else if(robo_position_x == x - 2 && robo_position_y == y - 1){
-                    for(int i = 0; i <= 1; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
-                        if(robot_check == false){
-                            robo_position_x += 1;
-                            RobotPositionX[index] += 1;
-                            robo_position_y += i;
-                            RobotPositionY[index] += i;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
                         robot_blocked = true;
-                        }
                     }
                 }
-                // Bottom middle, left
-                else if(robo_position_x == x + 1 && robo_position_y == y - 2){
-                    for(int i = -1; i <= 0; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
-                        if(robot_check == false){
-                            robo_position_x += i;
-                            RobotPositionX[index] += i;
-                            robo_position_y += 1;
-                            RobotPositionY[index] += 1;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
-                        robot_blocked = true;
-                        }
-                    }
-                }
-                // Bottom middle, middle
-                else if(robo_position_x == x && robo_position_y == y - 2){
-                    if(robo_position_x == 1){
-                        for(int i = 0; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y += 1;
-                                RobotPositionY[index] += 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                    else if(robo_position_x == column){
-                        for(int i = -1; i <= 0; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y += 1;
-                                RobotPositionY[index] += 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
+                if(((robo_position_x == x - 1) || (robo_position_x == x) || (robo_position_x == x + 1)) && (robo_position_y == y + 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x,robo_position_y+1);
+                    if(robot_check == true){
+                        robo_position_y += 1;
+                        RobotPositionY[index] += 1;
                     }
                     else{
-                        for(int i = -1; i <= 1; ++i){
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
-                            if(robot_check == false){
-                                robo_position_x += i;
-                                RobotPositionX[index] += i;
-                                robo_position_y += 1;
-                                RobotPositionY[index] += 1;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                            robot_blocked = true;
-                            }
-                        }
-                    }
-                }
-                // Bottom middle, right
-                else if(robo_position_x == x - 1 && robo_position_y == y - 2){
-                    for(int i = 0; i <= 1; ++i){
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
-                        if(robot_check == false){
-                            robo_position_x += i;
-                            RobotPositionX[index] += i;
-                            robo_position_y += 1;
-                            RobotPositionY[index] += 1;
-                            robot_blocked = false;
-                            break;
-                        }
-                        else{
                         robot_blocked = true;
-                        }
                     }
                 }
             }
-            // Alesha to herself: There's GOT to be a better way to code this istg. FIX THIS.
             else{
-                if(robo_position_x>1 && robo_position_y>1){
-                    for(int e = -1; e <= 1; ++e){
-                        for(int f = -1; f <= 1; ++f){
-                            // Checking a 3x3 area!
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
+                for(int e = -1; e <= 1; ++e){
+                    for(int f = -1; f <= 1; ++f){
+                        // Checking a 3x3 area!
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
 
-                            if(robot_check == false){
-                                robo_position_x = robo_position_x + f;
-                                robo_position_y = robo_position_y + e;
-                                RobotPositionX[index] = robo_position_x;
-                                RobotPositionY[index] = robo_position_y;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
                         if(robot_check == false){
+                            robo_position_x = robo_position_x + f;
+                            robo_position_y = robo_position_y + e;
+                            RobotPositionX[index] = robo_position_x;
+                            RobotPositionY[index] = robo_position_y;
                             break;
                         }
                     }
-                }
-                else if(robo_position_x<=1 && robo_position_y>1){
-                    for(int e = -1; e <= 0; ++e){
-                        for(int f = 0; f <= 1; ++f){
-                            // Checking a 3x3 area!
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
-
-                            if(robot_check == false){
-                                robo_position_x = robo_position_x + f;
-                                robo_position_y = robo_position_y + e;
-                                RobotPositionX[index] = robo_position_x;
-                                RobotPositionY[index] = robo_position_y;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
-                        if(robot_check == false){
-                            break;
-                        }
-                    }
-                }
-                else if(robo_position_x>1 && robo_position_y<=1){
-                    for(int e = 0; e <= 1; ++e){
-                        for(int f = -1; f <= 1; ++f){
-                            // Checking a 3x3 area!
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
-
-                            if(robot_check == false){
-                                robo_position_x = robo_position_x + f;
-                                robo_position_y = robo_position_y + e;
-                                RobotPositionX[index] = robo_position_x;
-                                RobotPositionY[index] = robo_position_y;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
-                        if(robot_check == false){
-                            break;
-                        }
-                    }
-                }
-                else if(robo_position_x<= 1 && robo_position_y<=1){
-                    for(int e = 0; e <= 1; ++e){
-                        for(int f = 0; f <= 1; ++f){
-                            // Checking a 3x3 area!
-                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
-
-                            if(robot_check == false){
-                                robo_position_x = robo_position_x + f;
-                                robo_position_y = robo_position_y + e;
-                                RobotPositionX[index] = robo_position_x;
-                                RobotPositionY[index] = robo_position_y;
-                                robot_blocked = false;
-                                break;
-                            }
-                            else{
-                                robot_blocked = true;
-                            }
-                        }
-                        if(robot_check == false){
-                            break;
-                        }
+                    if(robot_check == false){
+                        break;
                     }
                 }
             }
@@ -816,11 +436,9 @@ class GenericRobot: private Robot
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
 
-            rand_num_fire = (rand() % 100);
-
             // Check which robot got hit
             which_robot = findInListIndex(RobotPositionX,RobotPositionY,x,y);
-            if(which_robot > -1 && rand_num_fire <= 70){
+            if(which_robot > -1){
                 RobotLives[which_robot] = RobotLives[which_robot] - 1;
                 if(RobotLives[which_robot] == 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
@@ -836,12 +454,82 @@ class GenericRobot: private Robot
                 }
                 how_many_lives = RobotLives[which_robot];
             }
-            else if(which_robot > -1 && rand_num_fire > 70){
-                cout << "\n...But GenericBot " << name << " completely misses!";
-            }
         };
 
 };
+
+class SprintBot : public GenericRobot {
+public:
+    SprintBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {}
+
+    void move_to(int x, int y, int index) override {
+        // Move 2 steps instead of 1 towards the target
+        int dx = x - RobotPositionX[index];
+        int dy = y - RobotPositionY[index];
+
+        int step_x = (dx != 0) ? (dx / abs(dx)) * 2 : 0;
+        int step_y = (dy != 0) ? (dy / abs(dy)) * 2 : 0;
+
+        int new_x = RobotPositionX[index] + step_x;
+        int new_y = RobotPositionY[index] + step_y;
+
+        // Boundary check
+        new_x = max(1, min(column, new_x));
+        new_y = max(1, min(row, new_y));
+
+        // Collision check
+        if (!findInListInt(RobotPositionX, RobotPositionY, new_x, new_y)) {
+            RobotPositionX[index] = new_x;
+            RobotPositionY[index] = new_y;
+            cout << "\nSprintBot " << name << " sprints to position " << new_x << ", " << new_y << "!";
+        } else {
+            cout << "\nSprintBot " << name << " is blocked and stays at " << RobotPositionX[index] << ", " << RobotPositionY[index] << ".";
+        }
+    }
+};
+
+class PreciseShotBot : public GenericRobot {
+public:
+    PreciseShotBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {}
+
+    void fire(int x, int y, int index) override {
+        GenericRobot::fire(x, y, index); // Reuse existing 100% fire behavior
+
+    }
+};
+
+class EagleEyeBot : public GenericRobot {
+public:
+    // Constructor
+    EagleEyeBot(string n, int x, int y, int h) : GenericRobot(n, x, y, h) {}
+
+    // Override look() with custom behavior
+    void look(int x, int y, int index) override {
+        cout << "\nEagleEyeBot " << name << " scans the entire battlefield.";
+
+        bool found = false;
+        for (size_t i = 0; i < RobotPositionX.size(); ++i) {
+            if (i == index || RobotPositionX[i] == -5) continue; // Skip self or dead bots
+
+            int dx = abs(RobotPositionX[i] - x);
+            int dy = abs(RobotPositionY[i] - y);
+
+            // Custom vision range — 2 steps in any direction (3x3 area centered on bot)
+            if (dx <= 2 && dy <= 2) {
+                cout << "\nSpotted " << RobotType[i] << " " << RobotNames[i]
+                     << " at " << RobotPositionX[i] << ", " << RobotPositionY[i] << ".";
+                fire(RobotPositionX[i], RobotPositionY[i], index);
+                found = true;
+                break; // stop after first detection
+            }
+        }
+
+        if (!found)
+            cout << "\nEagleEyeBot " << name << " found no targets.";
+    }
+};
+
+
 
 // Program purposes
 bool loop = true;
