@@ -662,7 +662,7 @@ int main() {
         RobotLives.push_back(3);
         RobotAlive.push_back(true);
         RobotUpgrade.push_back(false);
-        UpgradeCount.push_back(3);
+        UpgradeCount.push_back(0);
         RobotRespawn.push_back(0);
     }
     // Do this program until the amount of steps is sufficient
