@@ -723,61 +723,61 @@ int main() {
                 }
 
                 if (!chosenType.empty()) {
-                    cout << "\n" << RobotNames[which_robot] << " upgrades and transforms into a " << chosenType << "!";
+                    cout << "\n" << RobotNames[i] << " upgrades and transforms into a " << chosenType << "!";
 
                     // Save current robot info
-                    string oldName = RobotNames[which_robot];
-                    int oldX = RobotPositionX[which_robot];
-                    int oldY = RobotPositionY[which_robot];
-                    int oldLives = RobotLives[which_robot];
+                    string oldName = RobotNames[i];
+                    int oldX = RobotPositionX[i];
+                    int oldY = RobotPositionY[i];
+                    int oldLives = RobotLives[i];
 
                     // Delete old robot object
-                    delete GenericRobots[which_robot];
-                    GenericRobots[which_robot] = nullptr;
+                    delete GenericRobots[i];
+                    GenericRobots[i] = nullptr;
 
                     // Create new robot based on chosenType
                     /*if (chosenType == "HideBot") {
-                        GenericRobots[which_robot] = new HideBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new HideBot(oldName, oldX, oldY, oldLives);
                     }
                     else if (chosenType == "JumpBot") {
-                        GenericRobots[which_robot] = new JumpBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new JumpBot(oldName, oldX, oldY, oldLives);
                     }
                     else if (chosenType == "SprintBot") {
-                        GenericRobots[which_robot] = new SprintBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new SprintBot(oldName, oldX, oldY, oldLives);
                     }
                     else if (chosenType == "LongShotBot") {
-                        GenericRobots[which_robot] = new LongShotBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new LongShotBot(oldName, oldX, oldY, oldLives);
                     }
                     else if (chosenType == "SemiAutoBot") {
-                        GenericRobots[which_robot] = new SemiAutoBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new SemiAutoBot(oldName, oldX, oldY, oldLives);
                     }
                     else */if (chosenType == "ThirtyShotBot") {
-                        GenericRobots[which_robot] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new ThirtyShotBot(oldName, oldX, oldY, oldLives);
                         RobotShells[i] = 30;
                     }
                     /*else if (chosenType == "PreciseShotBot") {
-                        GenericRobots[which_robot] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new PreciseShotBot(oldName, oldX, oldY, oldLives);
                     }*/
                     else if (chosenType == "ScoutBot") {
-                        GenericRobots[which_robot] = new ScoutBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new ScoutBot(oldName, oldX, oldY, oldLives);
                     }
                     /*else if (chosenType == "TrackBot") {
-                        GenericRobots[which_robot] = new TrackBot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new TrackBot(oldName, oldX, oldY, oldLives);
                     }
                     else if (chosenType == "Bot2020") {
-                        GenericRobots[which_robot] = new Bot2020(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new Bot2020(oldName, oldX, oldY, oldLives);
                     }*/
                     else {
                         // fallback to generic robot
-                        GenericRobots[which_robot] = new GenericRobot(oldName, oldX, oldY, oldLives);
+                        GenericRobots[i] = new GenericRobot(oldName, oldX, oldY, oldLives);
                     }
 
                     // Update robot type for the attacker
-                    RobotType[which_robot] = chosenType;
+                    RobotType[i] = chosenType;
                 }
 
                 RobotUpgrade[i]= false;
-                UpgradeCount[i] = +1;
+                UpgradeCount[i] += 1;
             }
 
             // Print the aftermath of the current robot's actions
