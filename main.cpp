@@ -709,7 +709,7 @@ int main() {
             }
             cout << "\n\n";
 
-            if (upgradeAvail && upgrade_count < MAX_UPGRADE) {
+            if (upgradeAvail==true && upgrade_count < MAX_UPGRADE) {
 
                 // --- Upgrade the attacker robot --- picheolin
                 int abilityType = rand() % 3;  // 0 = moving, 1 = shooting, 2 = seeing
