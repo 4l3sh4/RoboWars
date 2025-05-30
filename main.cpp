@@ -66,6 +66,7 @@ int how_many_lives;
 // For randomized numbers (used for the look() function)
 int rand_x;
 int rand_y;
+int rand_num_fire;
 
 int after_rand_x;
 int after_rand_y;
@@ -292,7 +293,6 @@ class GenericRobot: private Robot
             if(robot_check == false){
                 cout << "GenericRobot " << name << " could not find any robots...";
             }
-
         };
 
         // Reminder to Alesha: Fix the AI for the move_to() action to avoid possible softlocking.
@@ -300,111 +300,491 @@ class GenericRobot: private Robot
             robot_blocked = false;
 
             if(move_check == true){
-                if((robo_position_x == x - 2) && (robo_position_y == y - 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y-1);
-                    if(robot_check == true){
-                        robo_position_x -= 1;
-                        robo_position_y -= 1;
-                        RobotPositionX[index] -= 1;
-                        RobotPositionY[index] -= 1;
-                    }
-                    else{
-                        robot_blocked = true;
-                    }
-                }
-                if((robo_position_x == x + 2) && (robo_position_y == y - 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y-1);
-                    if(robot_check == true){
-                        robo_position_x += 1;
-                        robo_position_y -= 1;
-                        RobotPositionX[index] += 1;
-                        RobotPositionY[index] -= 1;
-                    }
-                    else{
-                        robot_blocked = true;
-                    }
-                }
-                if((robo_position_x == x - 2) && (robo_position_y == y + 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+1);
-                    if(robot_check == true){
-                        robo_position_x -= 1;
-                        robo_position_y += 1;
-                        RobotPositionX[index] -= 1;
-                        RobotPositionY[index] += 1;
-                    }
-                    else{
-                        robot_blocked = true;
-                    }
-                }
+                // Top left
                 if((robo_position_x == x + 2) && (robo_position_y == y + 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+1);
-                    if(robot_check == true){
-                        robo_position_x += 1;
-                        robo_position_y += 1;
-                        RobotPositionX[index] += 1;
-                        RobotPositionY[index] += 1;
-                    }
-                    else{
-                        robot_blocked = true;
-                    }
-                }
-                if(((robo_position_x == x - 1) || (robo_position_x == x) || (robo_position_x == x + 1)) && (robo_position_y == y - 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x,robo_position_y-1);
-                    if(robot_check == true){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y-1);
+                    if(robot_check == false){
+                        robo_position_x -= 1;
                         robo_position_y -= 1;
+                        RobotPositionX[index] -= 1;
                         RobotPositionY[index] -= 1;
                     }
                     else{
                         robot_blocked = true;
                     }
                 }
-                if(((robo_position_y == y - 1) || (robo_position_y == y) || (robo_position_y == y + 1)) && (robo_position_x == x - 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y);
-                    if(robot_check == true){
-                        robo_position_x -= 1;
-                        RobotPositionX[index] -= 1;
-                    }
-                    else{
-                        robot_blocked = true;
-                    }
-                }
-                if(((robo_position_y == y - 1) || (robo_position_y == y) || (robo_position_y == y + 1)) && (robo_position_x == x + 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y);
-                    if(robot_check == true){
+                // Top right
+                else if((robo_position_x == x - 2) && (robo_position_y == y + 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y-1);
+                    if(robot_check == false){
                         robo_position_x += 1;
+                        robo_position_y -= 1;
                         RobotPositionX[index] += 1;
+                        RobotPositionY[index] -= 1;
                     }
                     else{
                         robot_blocked = true;
                     }
                 }
-                if(((robo_position_x == x - 1) || (robo_position_x == x) || (robo_position_x == x + 1)) && (robo_position_y == y + 2)){
-                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x,robo_position_y+1);
-                    if(robot_check == true){
+                // Bottom left
+                else if((robo_position_x == x + 2) && (robo_position_y == y - 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+1);
+                    if(robot_check == false){
+                        robo_position_x -= 1;
                         robo_position_y += 1;
+                        RobotPositionX[index] -= 1;
                         RobotPositionY[index] += 1;
                     }
                     else{
                         robot_blocked = true;
+                    }
+                }
+                // Bottom right
+                else if((robo_position_x == x - 2) && (robo_position_y == y - 2)){
+                    robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+1);
+                    if(robot_check == false){
+                        robo_position_x += 1;
+                        robo_position_y += 1;
+                        RobotPositionX[index] += 1;
+                        RobotPositionY[index] += 1;
+                    }
+                    else{
+                        robot_blocked = true;
+                    }
+                }
+                // Top middle, left
+                else if(robo_position_x == x + 1 && robo_position_y == y + 2){
+                    for(int i = -1; i <= 0; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
+                        if(robot_check == false){
+                            robo_position_x += i;
+                            RobotPositionX[index] += i;
+                            robo_position_y -= 1;
+                            RobotPositionY[index] -= 1;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                            robot_blocked = true;
+                        }
+                    }
+                }
+                // Top middle, middle
+                else if(robo_position_x == x && robo_position_y == y + 2){
+                    if(robo_position_x == 1){
+                        for(int i = 0; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y -= 1;
+                                RobotPositionY[index] -= 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
+                    }
+                    else if(robo_position_x == column){
+                        for(int i = -1; i <= 0; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y -= 1;
+                                RobotPositionY[index] -= 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else{
+                        for(int i = -1; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y -= 1;
+                                RobotPositionY[index] -= 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                }
+                // Top middle, right
+                else if(robo_position_x == x - 1 && robo_position_y == y + 2){
+                    for(int i = 0; i <= 1; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y-1);
+                        if(robot_check == false){
+                            robo_position_x += i;
+                            RobotPositionX[index] += i;
+                            robo_position_y -= 1;
+                            RobotPositionY[index] -= 1;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Leftmost, top
+                else if(robo_position_x == x + 2 && robo_position_y == y + 1){
+                    for(int i = -1; i <= 0; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
+                        if(robot_check == false){
+                            robo_position_x -= 1;
+                            RobotPositionX[index] -= 1;
+                            robo_position_y += i;
+                            RobotPositionY[index] += i;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Leftmost, middle
+                else if(robo_position_x == x + 2 && robo_position_y == y){
+                    if(robo_position_y == 1){
+                        for(int i = 0; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x -= 1;
+                                RobotPositionX[index] -= 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
+                    }
+                    else if(robo_position_y == row){
+                        for(int i = -1; i <= 0; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x -= 1;
+                                RobotPositionX[index] -= 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else{
+                        for(int i = -1; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x -= 1;
+                                RobotPositionX[index] -= 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                }
+                // Leftmost, bottom
+                else if(robo_position_x == x + 2 && robo_position_y == y - 1){
+                    for(int i = 0; i <= 1; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x-1,robo_position_y+i);
+                        if(robot_check == false){
+                            robo_position_x -= 1;
+                            RobotPositionX[index] -= 1;
+                            robo_position_y += i;
+                            RobotPositionY[index] += i;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Rightmost, top
+                else if(robo_position_x == x - 2 && robo_position_y == y + 1){
+                    for(int i = -1; i <= 0; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
+                        if(robot_check == false){
+                            robo_position_x += 1;
+                            RobotPositionX[index] += 1;
+                            robo_position_y += i;
+                            RobotPositionY[index] += i;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Rightmost, middle
+                else if(robo_position_x == x - 2 && robo_position_y == y){
+                    if(robo_position_y == 1){
+                        for(int i = 0; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x += 1;
+                                RobotPositionX[index] += 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else if(robo_position_y == row){
+                        for(int i = -1; i <= 0; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x += 1;
+                                RobotPositionX[index] += 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else{
+                        for(int i = -1; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
+                            if(robot_check == false){
+                                robo_position_x += 1;
+                                RobotPositionX[index] += 1;
+                                robo_position_y += i;
+                                RobotPositionY[index] += i;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                }
+                // Rightmost, bottom
+                else if(robo_position_x == x - 2 && robo_position_y == y - 1){
+                    for(int i = 0; i <= 1; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+1,robo_position_y+i);
+                        if(robot_check == false){
+                            robo_position_x += 1;
+                            RobotPositionX[index] += 1;
+                            robo_position_y += i;
+                            RobotPositionY[index] += i;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Bottom middle, left
+                else if(robo_position_x == x + 1 && robo_position_y == y - 2){
+                    for(int i = -1; i <= 0; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
+                        if(robot_check == false){
+                            robo_position_x += i;
+                            RobotPositionX[index] += i;
+                            robo_position_y += 1;
+                            RobotPositionY[index] += 1;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
+                    }
+                }
+                // Bottom middle, middle
+                else if(robo_position_x == x && robo_position_y == y - 2){
+                    if(robo_position_x == 1){
+                        for(int i = 0; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y += 1;
+                                RobotPositionY[index] += 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else if(robo_position_x == column){
+                        for(int i = -1; i <= 0; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y += 1;
+                                RobotPositionY[index] += 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                    else{
+                        for(int i = -1; i <= 1; ++i){
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
+                            if(robot_check == false){
+                                robo_position_x += i;
+                                RobotPositionX[index] += i;
+                                robo_position_y += 1;
+                                RobotPositionY[index] += 1;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                            robot_blocked = true;
+                            }
+                        }
+                    }
+                }
+                // Bottom middle, right
+                else if(robo_position_x == x - 1 && robo_position_y == y - 2){
+                    for(int i = 0; i <= 1; ++i){
+                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+i,robo_position_y+1);
+                        if(robot_check == false){
+                            robo_position_x += i;
+                            RobotPositionX[index] += i;
+                            robo_position_y += 1;
+                            RobotPositionY[index] += 1;
+                            robot_blocked = false;
+                            break;
+                        }
+                        else{
+                        robot_blocked = true;
+                        }
                     }
                 }
             }
+            // Alesha to herself: There's GOT to be a better way to code this istg. FIX THIS.
             else{
-                for(int e = -1; e <= 1; ++e){
-                    for(int f = -1; f <= 1; ++f){
-                        // Checking a 3x3 area!
-                        robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
+                if(robo_position_x>1 && robo_position_y>1){
+                    for(int e = -1; e <= 1; ++e){
+                        for(int f = -1; f <= 1; ++f){
+                            // Checking a 3x3 area!
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
 
+                            if(robot_check == false){
+                                robo_position_x = robo_position_x + f;
+                                robo_position_y = robo_position_y + e;
+                                RobotPositionX[index] = robo_position_x;
+                                RobotPositionY[index] = robo_position_y;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
                         if(robot_check == false){
-                            robo_position_x = robo_position_x + f;
-                            robo_position_y = robo_position_y + e;
-                            RobotPositionX[index] = robo_position_x;
-                            RobotPositionY[index] = robo_position_y;
                             break;
                         }
                     }
-                    if(robot_check == false){
-                        break;
+                }
+                else if(robo_position_x<=1 && robo_position_y>1){
+                    for(int e = -1; e <= 0; ++e){
+                        for(int f = 0; f <= 1; ++f){
+                            // Checking a 3x3 area!
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
+
+                            if(robot_check == false){
+                                robo_position_x = robo_position_x + f;
+                                robo_position_y = robo_position_y + e;
+                                RobotPositionX[index] = robo_position_x;
+                                RobotPositionY[index] = robo_position_y;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
+                        if(robot_check == false){
+                            break;
+                        }
+                    }
+                }
+                else if(robo_position_x>1 && robo_position_y<=1){
+                    for(int e = 0; e <= 1; ++e){
+                        for(int f = -1; f <= 1; ++f){
+                            // Checking a 3x3 area!
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
+
+                            if(robot_check == false){
+                                robo_position_x = robo_position_x + f;
+                                robo_position_y = robo_position_y + e;
+                                RobotPositionX[index] = robo_position_x;
+                                RobotPositionY[index] = robo_position_y;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
+                        if(robot_check == false){
+                            break;
+                        }
+                    }
+                }
+                else if(robo_position_x<= 1 && robo_position_y<=1){
+                    for(int e = 0; e <= 1; ++e){
+                        for(int f = 0; f <= 1; ++f){
+                            // Checking a 3x3 area!
+                            robot_check = findInListInt(RobotPositionX,RobotPositionY,robo_position_x+f, robo_position_y+e);
+
+                            if(robot_check == false){
+                                robo_position_x = robo_position_x + f;
+                                robo_position_y = robo_position_y + e;
+                                RobotPositionX[index] = robo_position_x;
+                                RobotPositionY[index] = robo_position_y;
+                                robot_blocked = false;
+                                break;
+                            }
+                            else{
+                                robot_blocked = true;
+                            }
+                        }
+                        if(robot_check == false){
+                            break;
+                        }
                     }
                 }
             }
@@ -436,9 +816,11 @@ class GenericRobot: private Robot
         virtual void fire(int x, int y, int index) override{
             cout << "\nGenericRobot " << name << " fires at position " << x << ", " << y << "!";
 
+            rand_num_fire = (rand() % 100);
+
             // Check which robot got hit
             which_robot = findInListIndex(RobotPositionX,RobotPositionY,x,y);
-            if(which_robot > -1){
+            if(which_robot > -1 && rand_num_fire <= 70){
                 RobotLives[which_robot] = RobotLives[which_robot] - 1;
                 if(RobotLives[which_robot] == 1){
                     cout << "\n" << RobotType[which_robot] << " " << RobotNames[which_robot] << " positioned at " << RobotPositionX[which_robot];
@@ -453,6 +835,9 @@ class GenericRobot: private Robot
                     cout << ", " << RobotPositionY[which_robot] << " now only has " << RobotLives[which_robot] << " lives!";
                 }
                 how_many_lives = RobotLives[which_robot];
+            }
+            else if(which_robot > -1 && rand_num_fire > 70){
+                cout << "\n...But GenericBot " << name << " completely misses!";
             }
         };
 
