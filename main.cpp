@@ -692,6 +692,7 @@ int main() {
             if(GenericRobots[i]->ShowX() != -5){
                 // If robot is not dead, then it will do its action
                 GenericRobots[i]->think(RobotPositionX[i],RobotPositionY[i],i);
+                //picheolin - try add upgrade logic here
             }
             if(how_many_lives < 3){
                 GenericRobots[which_robot]->LoseLives();
@@ -703,7 +704,10 @@ int main() {
                 RobotPositionX[which_robot] = -5;
                 RobotPositionY[which_robot] = -5;
             }
+            cout << "\n\n";
+
             if (RobotUpgrade[i]==true && UpgradeCount[i] < 3) {
+
                 // --- Upgrade the attacker robot --- picheolin
                 int abilityType = rand() % 3;  // 0 = moving, 1 = shooting, 2 = seeing
                 string chosenType;
@@ -774,9 +778,6 @@ int main() {
                 RobotUpgrade[i]= false;
                 UpgradeCount[i] = +1;
             }
-            cout << "\n\n";
-
-
 
             // Print the aftermath of the current robot's actions
             for(int y = 1; y <= row; ++y){
