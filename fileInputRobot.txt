@@ -1,8 +1,20 @@
 M by N : 5 5
-steps: 3
-robots: 5
-GenericRobot Kidd 3 3
-GenericRobot Jet 3 4
-GenericRobot Alpha 2 3
-GenericRobot Star 2 2
-GenericRobot Beta 2 4
+steps: 1
+robots: 17
+GenericRobot ANT 3 3
+GenericRobot BALL 1 1
+GenericRobot COIN 1 2
+GenericRobot DOG 1 3
+GenericRobot EGG 1 4
+GenericRobot FERN 1 5
+GenericRobot GOLD 2 1
+GenericRobot HORN 3 1
+GenericRobot IGLOO 4 1
+GenericRobot JUG 5 1
+GenericRobot KRILL 5 2
+GenericRobot LAME 5 3
+GenericRobot NET 5 4
+GenericRobot OPPS 5 5
+GenericRobot PEN 2 5
+GenericRobot QUEEN 3 5
+GenericRobot ROLL 4 5

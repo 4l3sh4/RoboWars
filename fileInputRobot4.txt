@@ -1,0 +1,11 @@
+M by N : 5 5
+steps: 7
+robots: 8
+HideBot ANT 5 5
+JumpBot BALL 4 4
+LongShotBot COIN 4 5
+SemiAutoBot DOG 5 4
+ThirtyShotBot EGG 5 1
+PreciseShotBot FALL 5 2
+ScoutBot GRIME 4 1
+TrackBot HAT 5 3

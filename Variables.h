@@ -21,6 +21,7 @@ bool robot_blocked;
 int which_robot;
 int how_many_lives;
 bool no_target;
+string user_input;
 
 // For randomized numbers (used for the look() function)
 int rand_x;
@@ -40,10 +41,10 @@ int start_of_line;
 string robot_name;
 
 // List of all robot types.
-vector<string> AllRobotType = {"GenericRobot", "HideBot", "JumpBot", "SprintBot", "LongShotBot", "SemiAutoBot", "ThirtyShotBot", "PreciseShotBot", "ScoutBot", "TrackBot", "2020Bot"};
+vector<string> AllRobotType = {"GenericRobot", "HideBot", "JumpBot", "SprintBot", "LongShotBot", "SemiAutoBot", "ThirtyShotBot", "PreciseShotBot", "ScoutBot", "TrackBot", "EagleEyeBot"};
 vector<string> MovingRobotType = {"HideBot", "JumpBot", "SprintBot"};
 vector<string> ShootingRobotType = {"LongShotBot", "SemiAutoBot", "ThirtyShotBot", "PreciseShotBot"};
-vector<string> SeeingRobotType = {"ScoutBot", "TrackBot", "2020Bot"};
+vector<string> SeeingRobotType = {"ScoutBot", "TrackBot", "EagleEyeBot"};
 
 // Simulation steps
 int steps;
@@ -54,7 +55,8 @@ int robot_num;
 
 // Type, name, and initial position of each robot
 vector<string> RobotType, RobotNames;
-vector<int> RobotPositionX, RobotPositionY, RobotLives;
+vector<int> RobotPositionX, RobotPositionY, RobotLives, UpgradeCount, RobotShells, RobotRespawn;
+vector<bool> RobotAlive, RobotUpgrade, RobotIsHiding; // RobotAlive -> to flag the detstructed ones later
 
 // Initial position
 int position_x;
