@@ -9,6 +9,8 @@ using namespace std;
 int row;
 int column;
 
+ofstream outputFile("fileOutputRobot.txt");
+
 // To draw the box
 string col_box = "****";
 string row_box = "*";
@@ -22,6 +24,7 @@ int which_robot;
 int how_many_lives;
 bool no_target;
 string user_input;
+bool fail_open = true;
 
 // For randomized numbers (used for the look() function)
 int rand_x;
@@ -57,6 +60,7 @@ int robot_num;
 vector<string> RobotType, RobotNames;
 vector<int> RobotPositionX, RobotPositionY, RobotLives, UpgradeCount, RobotShells, RobotRespawn;
 vector<bool> RobotAlive, RobotUpgrade, RobotIsHiding; // RobotAlive -> to flag the detstructed ones later
+vector<vector<string>> PastUpgrades;
 
 // Initial position
 int position_x;
@@ -100,6 +104,10 @@ int findInListIndex(const vector<int>& vec1, const vector<int>& vec2, int number
         }
     }
     return -1;
+}
+
+bool findInListStr(const vector<string>& vec, string str) {
+    return find(vec.begin(), vec.end(), str) != vec.end();
 }
 
 #endif
