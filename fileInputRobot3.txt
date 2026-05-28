@@ -1,0 +1,9 @@
+M by N : 3 3
+steps: 10
+robots: 6
+GenericRobot ANT 3 1
+GenericRobot BALL 3 2
+GenericRobot COIN 3 3
+GenericRobot DOG 2 1
+GenericRobot EGG 1 1
+GenericRobot FERN 1 2

@@ -1,0 +1,8 @@
+M by N : 5 5
+steps: 5
+robots: 5
+GenericRobot MEGATRON 1 1
+GenericRobot STARSCREAM 1 5
+GenericRobot GRIMLOCK 3 3
+GenericRobot BUMBLEBEE 5 1
+GenericRobot SILVERBOLT 5 5

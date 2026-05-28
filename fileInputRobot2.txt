@@ -1,0 +1,11 @@
+M by N : 7 7
+steps: 7
+robots: 8
+GenericRobot ANT 1 1
+GenericRobot BALL 4 4
+GenericRobot COIN 4 5
+GenericRobot DOG 5 4
+GenericRobot EGG 5 1
+GenericRobot FALL 5 2
+GenericRobot GRIME 4 1
+GenericRobot HAT 5 3
