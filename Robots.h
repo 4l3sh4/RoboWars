@@ -4,10 +4,10 @@ COURSE: OOPDS
 TRIMESTER: 2510
 LECTURE SECTION: TC4L
 TUTORIAL SECTION: T14L
-MEMBER 1: 242UC244SU | ALESHA NOOR BINTI MOHAMMAD SALIM | ALESHA.NOOR.MOHAMMAD@student.mmu.edu.my | +60 18-789 3381
-MEMBER 2: 242UC244LC | AMIRAH BALQIS BINTI AZLAN | AMIRAH.BALQIS.AZLAN@student.mmu.edu.my | +60 13-397 6759
-MEMBER 3: 242UC244PW | ARIANA FALISYA BINTI AIDY @ MOHAMED SHAWAL | ARIANA.FALISYA.AIDY@student.mmu.edu.my | +60 13-436 8182
-MEMBER 4: 242UC244T9 | WAFIYYAH DIANNAH BINTI HUSSIN | WAFIYYAH.DIANNAH.HUSSIN@student.mmu.edu.my | +60 12-235 2861
+MEMBER 1: ALESHA NOOR
+MEMBER 2: AMIRAH BALQIS
+MEMBER 3: ARIANA FALISYA
+MEMBER 4: WAFIYYAH DIANNAH
 **********|**********|**********/
 
 // robots.h
@@ -854,8 +854,8 @@ class JumpBot : public GenericRobot {
                 } while (attempts < 100);
 
                 if (attempts >= 100) {
-                    cout << type << " " << RobotNames[index] << " failed to jump — no unoccupied spot found.\n";
-                    outputFile << type << " " << RobotNames[index] << " failed to jump — no unoccupied spot found.\n";
+                    cout << type << " " << RobotNames[index] << " failed to jump Â— no unoccupied spot found.\n";
+                    outputFile << type << " " << RobotNames[index] << " failed to jump Â— no unoccupied spot found.\n";
                     return;
                 }
                 if(jump_uses >= 2 || jump_uses == 0){
